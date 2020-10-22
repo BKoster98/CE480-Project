@@ -1,2 +1,5 @@
 # Ignore VSCode folder
 .vscode
+
+# Compiled file
+phase1/phase1

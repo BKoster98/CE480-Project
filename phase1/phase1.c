@@ -36,10 +36,8 @@ int main(int argc, char *argv[])
 			case 'v':
 				value = *optarg;
 				break;
-			case '?':
-				printf("stinky");
 			default:
-				abort();
+                exit(1);
 
 		}
 	}
