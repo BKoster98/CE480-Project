@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
 	int nrows;
 	int ncols;
 	char value;
+	int MAX = 20;
+	int MIN = 1;
 
 	nrows = 4;
 	ncols = 8;
@@ -29,19 +31,21 @@ int main(int argc, char *argv[])
 		switch (opt) {
 			case 'r': 
 				nrows = atoi(optarg);
+				if (nrows > 20) nrows = MAX;
+				if (nrows <= 0) nrows = MIN;
 				break;
 			case 'c':
 				ncols = atoi(optarg);
+				if (ncols > 20) ncols = MAX;
+				if (ncols <= 0) ncols = MIN;
 				break;
 			case 'v':
 				value = *optarg;
 				break;
 			default:
                 exit(1);
-
 		}
 	}
-
 	printbox(nrows, ncols, value);
 }
 
