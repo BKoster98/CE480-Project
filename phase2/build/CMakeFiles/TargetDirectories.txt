@@ -1,4 +1,0 @@
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/build/CMakeFiles/rebuild_cache.dir
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/build/CMakeFiles/edit_cache.dir
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/build/CMakeFiles/client.dir
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/build/CMakeFiles/server.dir
