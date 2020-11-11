@@ -1,4 +1,4 @@
-// Author : Allison Hurley and ???
+// Author : Allison Hurley and Ben Kocik
 // Purpose : Complete requirements for Phase 2
 //
 //  Citation : Based off of sample code found at https://www.binarytides.com/winsock-socket-programming-tutorial/
@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>   // used for Getopt
 
 #include "portable_socket.h"
 
@@ -114,6 +115,17 @@ int main(int argc, char *argv[])
     // todo use argc/argv to get optional port command....
     Socket server, client;
     int port = 60481;
+    int opt;
+
+	while ((opt = getopt(argc, argv, "p:")) != -1){
+		switch (opt) {
+			case 'p': 
+				port = atoi(optarg);
+				break;
+			default:
+                exit(1);
+		}
+	}
 
     initialize_sockets();
     initialize_server(&server, port);

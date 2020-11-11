@@ -6,14 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/phase2client.c
-stdio.h
--
-string.h
--
-portable_socket.h
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/portable_socket.h
-
 /Users/ahurley/Documents/Fall20/CE480-Project/Phase2/portable_socket.c
 stdio.h
 -

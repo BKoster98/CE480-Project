@@ -6,18 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/phase2server.c
-stdio.h
--
-string.h
--
-stdlib.h
--
-ctype.h
--
-portable_socket.h
-/Users/ahurley/Documents/Fall20/CE480-Project/Phase2/portable_socket.h
-
 /Users/ahurley/Documents/Fall20/CE480-Project/Phase2/portable_socket.c
 stdio.h
 -
