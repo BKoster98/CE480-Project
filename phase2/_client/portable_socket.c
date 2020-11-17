@@ -13,7 +13,7 @@ void initialize_sockets() {
     // Before using Winsock calls on Windows, the Winsock library needs to be initialized...
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
     {
-        fprintf(stderr, "Failed. Winsock error Code : %d\n", WSAGetLastError());
+        fprintf(stderr, "Failed. Winsock error Code : %d", WSAGetLastError());
         exit(ERROR_WINSOCK_INIT_FAILURE);
     }
 #endif
@@ -26,7 +26,7 @@ void initialize_server(Socket* server, unsigned port) {
     IGMP, or for the purposes of this chat program, TCP, which uses the constant IPPROTO_TCP. */
     if ((server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
-        fprintf(stderr, "Could not create socket : %d\n", WSAGetLastError());
+        fprintf(stderr, "Could not create socket : %d", WSAGetLastError());
         exit(ERROR_WINSOCK_SOCKET_CREATE_FAILURE);
     }
 
@@ -49,7 +49,7 @@ void initialize_server(Socket* server, unsigned port) {
 
     if (bind(server->socket, (struct sockaddr *) &server->addr, sizeof(server->addr)) == SOCKET_ERROR)
     {
-        fprintf(stderr, "Could not bind socket\n");
+        fprintf(stderr, "Could not bind socket");
         exit(ERROR_WINSOCK_SOCKET_BIND_FAILURE);
     }
 
@@ -71,7 +71,7 @@ int wait_for_client(Socket* server, Socket* client) {
     client->socket = accept(server->socket, (struct sockaddr *)&client->addr, &c);
     if (client->socket == INVALID_SOCKET)
     {
-        fprintf(stderr, "Accept failed with error code : %d\n", WSAGetLastError());
+        fprintf(stderr, "Accept failed with error code : %d", WSAGetLastError());
         return -1;
     }
 
@@ -85,13 +85,14 @@ int connect_to_server(Socket* server, const char* ipaddr, int port) {
     IGMP, or for the purposes of the program, TCP, which uses the constant IPPROTO_TCP. */
     if ((server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
-        fprintf(stderr, "Could not create socket : %d\n", WSAGetLastError());
+        fprintf(stderr, "Could not create socket : %d", WSAGetLastError());
         exit(ERROR_WINSOCK_SOCKET_CREATE_FAILURE);
     }
     // The socket now exists...but it isn't configured with an IP address or port number yet.
 
-    InetPton(AF_INET, ipaddr, &server->addr.sin_addr.s_addr);   // converts the IP address as a text string in ipv4addr to a number
-    server->addr.sin_family = AF_INET;							// Must agree with the socket Address Family type
+    /*ipv4addr = ipaddr;*/
+    /*InetPton(AF_INET, ipv4addr, &addrServer.sin_addr.s_addr);   // converts the IP address as a text string in ipv4addr to a number*/
+    /*addrServer.sin_family = AF_INET;							// Must agree with the socket Address Family type*/
 
     // htons() converts the host endianness to network endianness
     // This should always be used when transmitting integers
@@ -107,7 +108,7 @@ int connect_to_server(Socket* server, const char* ipaddr, int port) {
     // negative return values indicate an error. For this demo/project, we don't need to troubleshoot, so just "scream and die"
     if (connect(server->socket, (struct sockaddr *) &server->addr, sizeof(server->addr)) < 0)
     {
-        fprintf(stderr, "Could not connect socket\n");
+        fprintf(stderr, "Could not connect socket");
         exit(ERROR_WINSOCK_SOCKET_CONNECT_FAILURE);
     }
 
@@ -129,7 +130,7 @@ int read_msg(Socket* client, Message* msg) {
     int bytes = recv(client->socket, &msg->length, 1, 0);  // blocks here until something is received on the socket.
 
     if (bytes != 1) {
-        fprintf(stderr, "Ending the session...\n");
+        fprintf(stderr, "Error reading message length");
         msg->length = 0;
         *msg->buffer = 0;
         return -1;
@@ -139,7 +140,7 @@ int read_msg(Socket* client, Message* msg) {
     while (bytesRead != msg->length) {
         bytes = recv(client->socket, bufpos, msg->length - bytesRead, 0);
         if (bytes < 0) {
-            fprintf(stderr, "Ending the session...\n");
+            fprintf(stderr, "Error reading message buffer");
             msg->length = 0;
             *msg->buffer = 0;
             return -1;
@@ -158,12 +159,12 @@ int send_msg(Socket* client, Message* msg) {
     if (msg->length == 0) return 0;
 
     if (send(client->socket, &msg->length, 1, 0) < 0) {
-        fprintf(stderr, "Error sending message length\n");
+        fprintf(stderr, "Error sending message length");
         exit(ERROR_WINSOCK_SOCKET_SEND_FAILURE);
     }
 
     if (send(client->socket, msg->buffer, msg->length, 0) < 0) {
-        fprintf(stderr, "Error sending message buffer\n");
+        fprintf(stderr, "Error sending message buffer");
         exit(ERROR_WINSOCK_SOCKET_SEND_FAILURE);
     }
 
@@ -175,8 +176,8 @@ int send_string(Socket* client, const char* str) {
     size_t msglen = strlen(str);
 
     if (msglen < 256) {
-        msg.length = msglen;
-        strcpy(msg.buffer, str);
+        msg.length = (unsigned char) msglen;
+        strncpy(msg.buffer, str, sizeof(msg.buffer));
         return send_msg(client, &msg);
     }
 

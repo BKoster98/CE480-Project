@@ -1,6 +1,0 @@
-# Ignore folders
-.build
-.out
-
-# Ignore files
-.CMakeLists.txt

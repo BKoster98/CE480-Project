@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <unistd.h>   // used for Getopt
+//#include <unistd.h>   // used for Getopt
 
 #include "portable_socket.h"
 
@@ -115,17 +115,32 @@ int main(int argc, char *argv[])
     // todo use argc/argv to get optional port command....
     Socket server, client;
     int port = 60481;
-    int opt;
+    //int opt;
 
-	while ((opt = getopt(argc, argv, "p:")) != -1){
-		switch (opt) {
-			case 'p': 
-				port = atoi(optarg);
-				break;
-			default:
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] != ' '){
+            char* str = argv[i];
+            switch (str[1]) {
+            case 'p':
+                port = atoi(str[i]);
+                break;
+            default:
                 exit(1);
-		}
-	}
+            }
+        }
+    }
+
+	//while ((opt = getopt(argc, argv, "p:")) != -1){
+	//	switch (opt) {
+	//		case 'p': 
+	//			port = atoi(optarg);
+	//			break;
+	//		default:
+ //               exit(1);
+	//	}
+	//}
+
+    printf("The server is using address port %d\n", port);
 
     initialize_sockets();
     initialize_server(&server, port);
