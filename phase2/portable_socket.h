@@ -10,6 +10,7 @@
 #pragma comment(lib,"ws2_32.lib") //Winsock Library - don't touch this.
 
 WSADATA wsa;
+
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
