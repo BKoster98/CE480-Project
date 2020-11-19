@@ -1,5 +1,5 @@
-// Author : Allison Hurley and ???
-// Purpose : Complete requirements for Phase 2
+// Author : Allison Hurley and Ben Kocik
+// Purpose : demonstration of winsock API using a simple server/client
 //
 //  Citation : Based off of sample code found at https://www.binarytides.com/winsock-socket-programming-tutorial/
 //  Reference : http://beej.us/guide/bgnet/ has a decent explanation of the concepts, just be warned that the sample
@@ -74,14 +74,14 @@ const char* convert_mac(const char* mac) {
 const char* my_optarg = 0;
 
 char my_getopt(int argc, const char** argv, const char* format) {
-    static int count = 1;
-
-    if (count >= argc) return -1;
+    static int count = 0;
 
     ++count;
+    if (count >= argc) return -1;
+
     if (*argv[count] == '-' || *argv[count] == '/') {
         my_optarg = argv[count + 1];
-        return argv[count][1];
+        return argv[count++][1];
     }
 
     return -1;
@@ -131,7 +131,6 @@ int process_client(Socket* client) {
 
 int main(int argc, const char *argv[])
 {
-    // todo use argc/argv to get optional port command....
     Socket server, client;
     int opt = 0;
     int port = 60481;
@@ -146,11 +145,13 @@ int main(int argc, const char *argv[])
       }
     }
 
+    printf("The server is using port %i\n", port);
+
     initialize_sockets();
     initialize_server(&server, port);
 
     while (wait_for_client(&server, &client) == 0) {
-        printf("Connection established with %s\n", ipv4addr(&client));
+        printf("Connection established with %s on port %i\n", ipv4addr(&client), port);
         if (process_client(&client) == EXIT_FLAG) break;
     }
 

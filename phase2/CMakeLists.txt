@@ -14,5 +14,3 @@ target_include_directories(server PUBLIC "${PROJECT_BINARY_DIR}" )
 
 add_executable(client phase2client.c portable_socket.c)
 target_include_directories(client PUBLIC "${PROJECT_BINARY_DIR}" )
-
-

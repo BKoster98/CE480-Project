@@ -158,7 +158,7 @@ int send_msg(Socket* client, Message* msg) {
     if (msg->length == 0) return 0;
 
     if (send(client->socket, &msg->length, 1, 0) < 0) {
-        fprintf(stderr, "Error sending message length\n");
+        fprintf(stderr, "Quitting the session\n");
         exit(ERROR_WINSOCK_SOCKET_SEND_FAILURE);
     }
 
