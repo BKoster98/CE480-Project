@@ -1,4 +1,4 @@
-// Author : Allison Hurley and Ben Kocik
+// Author : Allison Hurley and ???
 // Purpose : Complete requirements for Phase 2
 //
 //  Citation : Based off of sample code found at https://www.binarytides.com/winsock-socket-programming-tutorial/
@@ -7,9 +7,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
-//#include <unistd.h>   // used for Getopt
+#include <stdlib.h>   // ascii to integer conversion
 
 #include "portable_socket.h"
 
@@ -71,32 +70,52 @@ const char* convert_mac(const char* mac) {
     return result;
 }
 
+// poor man's optarg
+const char* my_optarg = 0;
+
+char my_getopt(int argc, const char** argv, const char* format) {
+    static int count = 1;
+
+    if (count >= argc) return -1;
+
+    ++count;
+    if (*argv[count] == '-' || *argv[count] == '/') {
+        my_optarg = argv[count + 1];
+        return argv[count][1];
+    }
+
+    return -1;
+}
+
 int process_client(Socket* client) {
     char resp[255] = "";
     Message msg;
     int rc = 0;
 
     while(rc == 0) {
-        msg.length = sprintf(msg.buffer, "%sEnter a MAC Address, Q quit, or T to terminate server: ", resp);
+        msg.length = snprintf(msg.buffer, sizeof(msg.buffer), "%sEnter a MAC Address, Q quit, or T to terminate server: ", resp);
         send_msg(client, &msg);
         read_msg(client, &msg);
         if (msg.length == 1) {
-            if (*msg.buffer == 'T') {
+            if (tolower(*msg.buffer) == 't') {
                 printf("Shutting Down\n");
                 rc = EXIT_FLAG;
             }
-            if (*msg.buffer == 'Q') {
+            if (tolower(*msg.buffer) == 'q') {
                 printf("Terminate Client\n");
                 rc = CLOSE_FLAG;
+            } else {
+                snprintf(resp, sizeof(resp), "Unknown command '%c'\n", *msg.buffer);
             }
         } else if (msg.length > 0) {
 
             // is this a MAC address? do something useful...
             const char* ipv6 = convert_mac(msg.buffer);
             if (ipv6) {
-                sprintf(resp, "The EUI-64 number is %s.\n", ipv6);
+                snprintf(resp, sizeof(resp), "The EUI-64 number is %s.\n", ipv6);
             } else {
                 resp[0] = 0;
+                snprintf(resp, sizeof(resp), "Unable to process '%s'.\n", msg.buffer);
                 printf("Unable to process >%s<\n", msg.buffer);
             }
 
@@ -110,37 +129,22 @@ int process_client(Socket* client) {
     return rc;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     // todo use argc/argv to get optional port command....
     Socket server, client;
+    int opt = 0;
     int port = 60481;
-    //int opt;
 
-    for (int i = 1; i < argc; i++) {
-        if (argv[i] != ' '){
-            char* str = argv[i];
-            switch (str[1]) {
-            case 'p':
-                port = atoi(str[i]);
-                break;
-            default:
-                exit(1);
-            }
-        }
+    while ((opt = my_getopt(argc, argv, "p:")) != -1){
+      switch (opt) {
+        case 'p': 
+          port = atoi(my_optarg);
+          break;
+        default:
+          exit(1);
+      }
     }
-
-	//while ((opt = getopt(argc, argv, "p:")) != -1){
-	//	switch (opt) {
-	//		case 'p': 
-	//			port = atoi(optarg);
-	//			break;
-	//		default:
- //               exit(1);
-	//	}
-	//}
-
-    printf("The server is using address port %d\n", port);
 
     initialize_sockets();
     initialize_server(&server, port);
