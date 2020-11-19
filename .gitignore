@@ -8,15 +8,6 @@ phase1/phase1
 
 # Ignore from Phase 2
 phase2/.vs
-# Client
-phase2/_client/.vs
-phase2/_client/build
-phase2/_client/Debug
-phase2/_client/_client.*
-# Server
-phase2/_server/.vs
-phase2/_server/build
-phase2/_server/Debug
-phase2/_server/_server.*
+phase2/out
 
 
