@@ -129,7 +129,7 @@ int read_msg(Socket* client, Message* msg) {
     int bytes = recv(client->socket, &msg->length, 1, 0);  // blocks here until something is received on the socket.
 
     if (bytes != 1) {
-        fprintf(stderr, "Error reading message length\n");
+        fprintf(stderr, "Ending the session...\n");
         msg->length = 0;
         *msg->buffer = 0;
         return -1;
@@ -158,7 +158,7 @@ int send_msg(Socket* client, Message* msg) {
     if (msg->length == 0) return 0;
 
     if (send(client->socket, &msg->length, 1, 0) < 0) {
-        fprintf(stderr, "Quitting the session\n");
+        fprintf(stderr, "Error sending message length\n");
         exit(ERROR_WINSOCK_SOCKET_SEND_FAILURE);
     }
 
