@@ -1,9 +1,13 @@
+//Authors: Allison Hurley & Ben Kocik 
+//Purpose: Multithreaded Cpp Program 
+
 #include <iostream>    
 #include <thread> 
 #include <mutex>
 
 std::mutex mutex;
 
+// Replaces thread struct from c example code
 class thread_node {
     public:
         thread_node(const int id, const int count, const int delay_value);
@@ -14,13 +18,13 @@ class thread_node {
         static bool wait_and_remove();
 
     private:
-        const int id;
-        const int count;
-        const int delay_value;
-        std::thread handle;
-        thread_node* next;
+        const int id;                       // Thread ID
+        const int count;                    // Number of times that each thread must print
+        const int delay_value;              // Thread delay
+        std::thread handle;                 // Cpp thread type (works on both windows and linux)
+        thread_node* next;                  // Used for linked list, points to next item
 
-        static thread_node *root;
+        static thread_node *root;           // Points to the beginning of the list of threads
 };
 
 thread_node *thread_node::root = nullptr;
@@ -28,9 +32,12 @@ thread_node *thread_node::root = nullptr;
 thread_node::thread_node(const int _id, const int _count, const int _delay_value) : 
     id(_id), count(_count), delay_value(_delay_value), handle(work, this) { }
 
+//the printThread function from the example code 
 void thread_node::work(thread_node* node) {
+    //calculates delay
     auto delay = 100 * (node->id + 1) + (node->delay_value % 300) + 200;
 
+    //
     for(auto i{node->count}; i; --i) {
         {
             //Locks the mutex when the variable comes into existence
@@ -42,23 +49,24 @@ void thread_node::work(thread_node* node) {
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 }
-
+// Creates thread, allocates memory, and puts into linked list
 void thread_node::build(const int id, const int count, const int delay_value) {
+    // new is a cpp tool that is comparable to the malloc in c but also allocates memory
     thread_node* new_node = new thread_node(id, count, delay_value);
-    new_node->next = root;
-    root = new_node;
+    new_node->next = root;                  // adding to linkedlist
+    root = new_node;                        //resassigning head of list
 }
-
+// Waits for threads to complete and then deletes the node
 bool thread_node::wait_and_remove() {
     if (thread_node* node = root) {
-        node->join();
-        root = node->next;
-        delete node;
+        node->join();                       // WaitForSingleObject in C aka waits for the thread to end
+        root = node->next;                  // Move to next thread in list
+        delete node;                        // Deletes the thread
         
         return true;
     }
 
-    return false;
+    return false;                           // Exits when all threads are complete
 }
 
 int main(int argc, char *argv[])
