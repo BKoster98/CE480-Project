@@ -43,7 +43,7 @@ void thread_node::work(thread_node* node) {
             //Locks the mutex when the variable comes into existence
             const std::lock_guard<std::mutex> lock(mutex);
             //ensures no interrupting prints
-            std::cout << "Thread " << node->id << '\n';
+            std::cout << "Thread " << node->id << ": " << node->delay_value <<'\n';
         }
         //Sleep is a windows function - this works for both 
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -79,7 +79,10 @@ int main(int argc, char *argv[])
     int count = atoi(argv[1]);
 
     for (int id = 2; id < argc; ++id) {
-        thread_node::build(id - 2, count, atoi(argv[id]));
+        // Make sure numbers stay within range of 1 - 1000
+        if (atoi(argv[id]) > 1000) { thread_node::build(id - 2, count, 1000); }
+        else if (atoi(argv[id]) < 1) { thread_node::build(id - 2, count, 1); }
+        else { thread_node::build(id - 2, count, atoi(argv[id])); }
     }
 
     while (thread_node::wait_and_remove()) { }
