@@ -80,9 +80,11 @@ int main(int argc, char *argv[])
 
     for (int id = 2; id < argc; ++id) {
         // Make sure numbers stay within range of 1 - 1000
-        if (atoi(argv[id]) > 1000) { thread_node::build(id - 2, count, 1000); }
-        else if (atoi(argv[id]) < 1) { thread_node::build(id - 2, count, 1); }
+        if (atoi(argv[id]) >= 1000) { thread_node::build(id - 2, count, 1000); }
+        else if (atoi(argv[id]) <= 1) { thread_node::build(id - 2, count, 1); }
         else { thread_node::build(id - 2, count, atoi(argv[id])); }
+        // I just want to point out I put an = in the if and else if because
+        // if you think about it, that makes the program more efficient lol
     }
 
     while (thread_node::wait_and_remove()) { }
