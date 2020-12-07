@@ -9,10 +9,15 @@ phase1/phase1
 # Ignore from Phase 2
 phase2/.vs
 phase2/out
-phase3/build
+phase2/build
 
 # Ignore from Phase 3
 phase3/.vs
 phase3/out
 phase3/build
 phase3/phase3
+
+# Ignore from Final Phase
+finalPhase/.vs
+finalPhase/out
+finalPhase/build
