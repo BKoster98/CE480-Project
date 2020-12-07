@@ -16,3 +16,12 @@ phase3/.vs
 phase3/out
 phase3/build
 phase3/phase3
+
+# Ignore from Final
+final/client/client
+final/client/.vs
+final/client/build
+final/server/server
+final/server/.vs
+final/server/build
+final/build
