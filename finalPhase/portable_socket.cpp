@@ -106,7 +106,7 @@ server_socket::server_socket(in_port_t port, int depth) : base_socket() {
     {
         throw socket_error("Could not create socket");
     }
-    std::cout << "Opened server_socket: " << handle << '\n';
+    //std::cout << "Opened server_socket: " << handle << '\n';
 
     // The socket now exists...but it isn't configured with an IP address or port number yet.
     {
@@ -209,7 +209,7 @@ client_socket::client_socket(const std::string &ipaddr, in_port_t port) {
     {
         throw socket_error("Could not create socket");
     }
-    std::cout << "Opened client_socket: " << handle << '\n';
+    //std::cout << "Opened client_socket: " << handle << '\n';
     // The socket now exists...but it isn't configured with an IP address or port number yet.
 
     InetPton(AF_INET, ipaddr.c_str(), &addr.sin_addr.s_addr);   // converts the IP address as a text string in ipv4addr to a number*/

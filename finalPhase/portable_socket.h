@@ -168,7 +168,7 @@ void simple_server::start(LAMBDA lambda) {
 
     while (running) {
         accept([&jobs, &lambda](base_socket client) {
-            std::cout << "Client (" << client.ipv4_addr() << ") connected\n";
+            //std::cout << "Client (" << client.ipv4_addr() << ") connected\n";
             client.blocking();
             std::packaged_task<std::pair<std::string,bool>(base_socket)> task{lambda};
             jobs.push_back(task.get_future());
