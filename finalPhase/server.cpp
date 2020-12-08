@@ -42,7 +42,7 @@ try {
     //creates server connection
     simple_server server(port);
 
-    std::cout << "Server started on " << server.ipv4_addr() << "\n";
+    std::cout << "Server started on port " << port << "\n";
     //starts a threaded server for every new connection starts a new thread and runs the function
     server.start(random_die_client);
 
