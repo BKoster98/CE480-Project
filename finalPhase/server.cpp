@@ -17,15 +17,21 @@ std::pair<std::string,bool> random_die_client(base_socket client) {
             std::string cmd = client.recv();
             if (cmd == "Q"){
                 running = false; 
+            }else{
+                int randNum = rand()%(std::stoi(cmd)) + 1;
+                client.send(std::to_string(randNum));
             }
-            //client.send(client.recv());
+            
         }
+        
     } catch (socket_error& err) {
         //socket errors
         std::cerr << "socket_error in process_client: " << err.what() << "\n";
         //returns IP and error status 
         return std::pair(client.ipv4_addr(),false);
     }
+
+    return std::pair(client.ipv4_addr(),true);
 }
 
 int main(int argc, const char** argv)
