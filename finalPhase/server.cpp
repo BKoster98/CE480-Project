@@ -1,5 +1,5 @@
 // Author : Allison Hurley & Ben Kocik
-// Purpose : 
+// Purpose : TCP Dice Roller Server - random number generator
 //
 //  Citation : Based off of sample code found at https://www.binarytides.com/winsock-socket-programming-tutorial/
 //  Reference : http://beej.us/guide/bgnet/ has a decent explanation of the concepts, just be warned that the sample
@@ -42,7 +42,7 @@ try {
     //creates server connection
     simple_server server(port);
 
-    std::cout << "Server started on port " << port << "\n";
+    //std::cout << "Server started on port " << port << "\n";
     //starts a threaded server for every new connection starts a new thread and runs the function
     server.start(random_die_client);
 

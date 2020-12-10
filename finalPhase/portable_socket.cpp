@@ -92,7 +92,7 @@ std::string base_socket::ipv4_addr() {
 
 base_socket::~base_socket() {
     if (handle != INVALID_SOCKET) {
-      std::cout << "Closing socket " << handle << '\n';
+      //std::cout << "Closing socket \n";
       socket_error::nzguard(closesocket(handle), "Closing socket");
     }
 }

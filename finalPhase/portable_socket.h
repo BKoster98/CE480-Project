@@ -61,7 +61,7 @@ public:
 
     template<typename T>
     static T guard(T expr, const std::string& msg="") {
-        if (expr ==  0) throw std::runtime_error("socket closed");
+        // if (expr ==  0) throw std::runtime_error("socket closed");
         if (expr == -1) throw socket_error(msg);
         return expr;
     }
@@ -79,7 +79,7 @@ private:
 class base_socket {
 public:
     base_socket(SOCKET _handle, struct sockaddr_in _addr) : handle(_handle), addr(_addr) {
-      std::cout << "Opened socket: " << handle << '\n';
+      // std::cout << "Opened socket: " << handle << '\n';
     }
     virtual ~base_socket();
 
@@ -181,12 +181,12 @@ void simple_server::start(LAMBDA lambda) {
             if (job->wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                 try {
                     auto status = job->get();
-                    std::cout << "Client (" << status.first << ") exited: " << status.second << "\n";
+                    //std::cout << "Client (" << status.first << ") exited: " << status.second << "\n";
 
                 } catch(server_exit) {
                     running = false;
                 } catch(std::exception& err) {
-                    std::cout << "Client exited with exception: " << err.what() << "\n";
+                    //std::cout << "Client exited with exception: " << err.what() << "\n";
                 }
                 job = jobs.erase(job);
             } else {

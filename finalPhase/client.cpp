@@ -1,5 +1,5 @@
 // Author : Allison Hurley & Ben Kocik
-// Purpose : demonstration of winsock API using a simple server/client
+// Purpose : Dice roller client
 //
 //
 //
@@ -23,6 +23,7 @@ try {
     client_socket client(ipaddr, port);
     bool running = true;
     std::string cmd;
+    std::cout << "Connected to address: " << ipaddr << " port: " << port << "\n";
 
     std::regex cmd_pattern("\\s*(\\d+)\\s*[dD]\\s*(\\d+)\\s*");
 
