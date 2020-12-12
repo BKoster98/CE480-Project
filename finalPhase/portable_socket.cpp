@@ -77,12 +77,14 @@ std::string base_socket::recv_string(int length) {
 
     int total_bytes_read = 0;
     while (total_bytes_read != length) {
-        total_bytes_read += socket_error::guard(::recv(handle, (char*) &buffer[total_bytes_read], length - total_bytes_read, 0));
+        total_bytes_read += socket_error::guard(::recv(handle,
+                                                (char*) &buffer[total_bytes_read],
+                                                length - total_bytes_read, 0));
     }
 
     return std::string(buffer.begin(), buffer.end());
 }
-
+// returns address as a string
 std::string base_socket::ipv4_addr() {
     char result[INET_ADDRSTRLEN];
     InetNtop(AF_INET, &(addr.sin_addr), result, INET_ADDRSTRLEN);
@@ -92,35 +94,38 @@ std::string base_socket::ipv4_addr() {
 
 base_socket::~base_socket() {
     if (handle != INVALID_SOCKET) {
-      //std::cout << "Closing socket \n";
-      socket_error::nzguard(closesocket(handle), "Closing socket");
+        socket_error::nzguard(::closesocket(handle), "Closing socket");
     }
 }
 
 server_socket::server_socket(in_port_t port, int depth) : base_socket() {
-    /* The socket() call takes three arguments. The first is the network protocol "Address Family", hence the AF_prefix.
-    The two most common are AF_INET for IPv4 and AF_INET6 for IPv6. The next asks for the port type, which is usually a
-    TCP port with SOCK_STREAM, or a UDP port with SOCK_DGRAM. The third parameter is the specific protocol, such as ICMP,
-    IGMP, or for the purposes of this chat program, TCP, which uses the constant IPPROTO_TCP. */
+    /* The socket() call takes three arguments. The first is the network 
+     * protocol "Address Family", hence the AF_prefix.
+     * The two most common are AF_INET for IPv4 and AF_INET6 for IPv6. 
+     * The next asks for the port type, which is usually a TCP port with 
+     * SOCK_STREAM, or a UDP port with SOCK_DGRAM. 
+     * The third parameter is the specific protocol, such as ICMP, IGMP, 
+     * or for the purposes of this chat program, TCP, which uses 
+     * the constant IPPROTO_TCP. 
+     */
     if ((handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
         throw socket_error("Could not create socket");
     }
-    //std::cout << "Opened server_socket: " << handle << '\n';
 
     // The socket now exists...but it isn't configured with an IP address or port number yet.
     {
-        // This block sets up the IP address that the server will listen on (in case is has multiple IP addresses) and the port
-        //InetPton(AF_INET, ipv4addr, &socketServer.sin_addr.s_addr); // The variable ip4addr is a character array that has an IPv4 address in it. The code defines it above to
-        // to 127.0.0.1, so it will only talk to itself. The  InetPton function converts this text string to a 32-bti number and stores
-        // it in the socket socketServer.
-        //or allow the system to select one
-        // NOTE!!! when you use INADDR_ANY, the host will print 0.0.0.0 as the IP Address, but it is listening on all IP's.
+        // This block sets up the IP address that the server will listen on 
+        // NOTE!!! when you use INADDR_ANY, the host will print 0.0.0.0 
+        // as the IP Address, but it is listening on all IP's.
         addr.sin_addr.s_addr = INADDR_ANY;
-        addr.sin_family = AF_INET;							// Must agree with the socket Address Family type
 
-        //CE-480 - Change the port number that the server is using by altering the following line.
-        addr.sin_port = htons(port);						// htons() converts the host endianness to network endianness
+        // Must agree with the socket Address Family type
+        addr.sin_family = AF_INET;							
+
+        // Change the port number that the server is using by altering the following line.
+        // htons() converts the host endianness to network endianness
+        addr.sin_port = htons(port);						
 
         // This should always be used when transmitting integers
         // ntohs() converts the opposite way for receiving integers.
@@ -131,7 +136,6 @@ server_socket::server_socket(in_port_t port, int depth) : base_socket() {
         throw socket_error("Could not bind socket");
     }
 
-    // tells socket to start listening for clients, 5 is the arbitrarily chosen number of backlogged connections allowed
     // This only needs to be done once on the server's original socket.
     if (listen(handle, depth) != 0) {
         throw socket_error("Socket listen failed");
@@ -145,83 +149,39 @@ base_socket server_socket::accept() {
     // a new socket is created (stored in s_new) that is a complete socket between this server
     // and the client. The orginal socket s still existed to accept new calls. Information about the connection,
     // such as the client's IP and port number, is stored to socketClient.
-    struct sockaddr_in a{0, 0, 0, {0}, {0}};
+    struct sockaddr_in a { 0, 0, 0, {0}, {0} };
     SOCKET h = socket_error::guard(::accept(handle, (struct sockaddr *)&a, &c), "Accept failed");
 
     return base_socket(h, a);
 }
 
-base_socket nonblocking_server_socket::accept() {
-    fd_set read_fds;
-    FD_ZERO(&read_fds);
-    FD_SET(handle, &read_fds);
-    struct timeval timeout{0, 0};
-    timeout.tv_sec = 10;
-    timeout.tv_usec = 0;
-
-    auto rc = select(int(handle) + 1, &read_fds, nullptr, nullptr, &timeout);
-
-    if (rc < 0) {
-        throw socket_error("accept select error");
-    } else if (rc == 0) {
-        throw std::runtime_error("accept timeout");
-    }
-
-    return server_socket::accept();
-}
-
-bool nonblocking_server_socket::accept(const std::function<void(base_socket)> &handler, std::chrono::milliseconds delay) {
-    fd_set read_fds;
-    FD_ZERO(&read_fds);
-    FD_SET(handle, &read_fds);
-    struct timeval timeout{0, 0};
-    auto int_sec = std::chrono::duration_cast<std::chrono::seconds>(delay);
-    auto int_usec = std::chrono::duration_cast<std::chrono::microseconds>(delay - int_sec);
-    timeout.tv_sec = (long) int_sec.count();
-    timeout.tv_usec = (long) int_usec.count();
-
-    auto rc = select(int(handle) + 1, &read_fds, nullptr, nullptr, &timeout);
-    if (rc < 0) {
-        throw socket_error("accept select error");
-    }
-
-    if (rc > 0) {
-        handler(server_socket::accept());
-        return true;
-    }
-
-    return false;
-}
-
-simple_server::simple_server(in_port_t port, unsigned depth) : nonblocking_server_socket(port, depth), running(false) {
-}
-
-void simple_server::stop() {
-    running = false;
-}
-
 client_socket::client_socket(const std::string &ipaddr, in_port_t port) {
-    /* The socket() call takes three arguments. The first is the network protocol "Address Family", hence the AF_prefix.
-    The two most common are AF_INET for IPv4 and AF_INET6 for IPv6. The next asks for the port type, which is usually a
-    TCP port with SOCK_STREAM, or a UDP port with SOCK_DGRAM. The third parameter is the specific protocol, such as ICMP,
-    IGMP, or for the purposes of the program, TCP, which uses the constant IPPROTO_TCP. */
+    /* The socket() call takes three arguments. The first is the network protocol 
+     * "Address Family", hence the AF_prefix. The two most common are AF_INET for 
+     * IPv4 and AF_INET6 for IPv6. The next asks for the port type, which is 
+     * usually a TCP port with SOCK_STREAM, or a UDP port with SOCK_DGRAM. The 
+     * third parameter is the specific protocol, such as ICMP, IGMP, or for the 
+     * purposes of the program, TCP, which uses the constant IPPROTO_TCP. 
+     */
     if ((handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
         throw socket_error("Could not create socket");
     }
-    //std::cout << "Opened client_socket: " << handle << '\n';
-    // The socket now exists...but it isn't configured with an IP address or port number yet.
 
-    InetPton(AF_INET, ipaddr.c_str(), &addr.sin_addr.s_addr);   // converts the IP address as a text string in ipv4addr to a number*/
-    addr.sin_family = AF_INET;							// Must agree with the socket Address Family type*/
+    // The socket now exists...but it isn't configured with an IP address or port number yet.
+    // converts the IP address as a text string in ipv4addr to a number
+    InetPton(AF_INET, ipaddr.c_str(), &addr.sin_addr.s_addr);   
+    
+    // Must agree with the socket Address Family type
+    addr.sin_family = AF_INET;							
 
     // htons() converts the host endianness to network endianness
     // This should always be used when transmitting integers
     // ntohs() converts the opposite way for receiving integers.
     addr.sin_port = htons(port);
 
-    //Connect to remote server
-    // negative return values indicate an error. For this demo/project, we don't need to troubleshoot, so just "scream and die"
+    // Connect to remote server
+    // negative return values indicate an error. 
     if (connect(handle, (struct sockaddr *) &addr, sizeof(addr)) < 0)
     {
         throw socket_error("Could not connect socket");

@@ -10,7 +10,7 @@
 #include "portable_socket.h"
 #include "simple_args.h"
 
-std::pair<std::string,bool> random_die_client(base_socket client) {
+void random_die_client(base_socket client) {
     try {
         bool running = true; 
         while(running) {
@@ -23,15 +23,14 @@ std::pair<std::string,bool> random_die_client(base_socket client) {
             }
             
         }
-        
+    } catch (socket_closed) {
+        // do nothing
+        // client quit
     } catch (socket_error& err) {
         //socket errors
         std::cerr << "socket_error in process_client: " << err.what() << "\n";
-        //returns IP and error status 
-        return std::pair(client.ipv4_addr(),false);
     }
 
-    return std::pair(client.ipv4_addr(),true);
 }
 
 int main(int argc, const char** argv)
